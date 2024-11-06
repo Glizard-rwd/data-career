@@ -58,4 +58,18 @@ select c.customerNumber, c.customerName, count(o.orderNumber) as totalOrder from
 where o.customerNumber = c.customerNumber
 group by c.customerNumber, c.customerName;
 
-select * from customers c join orders o
+
+
+# calculate total order prices
+select o.orderNumber, o.customerNumber, sum((od.quantityOrdered * priceEach)) as totalPrice
+from orderdetails od
+         join orders o where o.orderNumber = od.orderNumber
+group by o.orderNumber
+order by totalPrice desc;
+
+
+select o.orderDate, count(distinct o.orderNumber) as orderNumber, sum((od.quantityOrdered * od.priceEach)) as totalPricePerDay from orders o
+join orderdetails od on o.orderNumber = od.orderNumber
+group by o.orderDate
+order by totalPricePerDay desc;
+select * from orderdetails;
