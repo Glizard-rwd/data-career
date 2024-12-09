@@ -149,3 +149,97 @@ group by Customer.customer_id
 having count(distinct product_key) = (select count(*) from Product); # too slow
 
 
+Create table If Not Exists Employees(employee_id int, name varchar(20), reports_to int, age int);
+Truncate table Employees;, age) values ('9', 'Hercy', NULL, '43')
+insert into Employees (employee_id, name, reports_to, age) values ('9', 'Hercy', NULL, '43')
+insert into Employees (employee_id, name, reports_to, age) values ('6', 'Alice', '9', '41');
+insert into Employees (employee_id, name, reports_to, age) values ('4', 'Bob', '9', '36');
+insert into Employees (employee_id, name, reports_to, age) values ('2', 'Winston', NULL, '37');
+select e2.employee_id, e2.name, count(e1.employee_id) as report_counts, round(avg(e1.age)) as average_age from employees e1
+join employees e2 on e1.reports_to = e2.employee_id
+group by e2.employee_id, e2.name
+order by e2.employee_id;
+
+
+Create table If Not Exists Employee (employee_id int, department_id int, primary_flag ENUM('Y','N'));
+Truncate table Employee;
+insert into Employee (employee_id, department_id, primary_flag) values ('1', '1', 'N');
+insert into Employee (employee_id, department_id, primary_flag) values ('2', '1', 'Y');
+insert into Employee (employee_id, department_id, primary_flag) values ('2', '2', 'N');
+insert into Employee (employee_id, department_id, primary_flag) values ('3', '3', 'N');
+insert into Employee (employee_id, department_id, primary_flag) values ('4', '2', 'N');
+insert into Employee (employee_id, department_id, primary_flag) values ('4', '3', 'Y');
+insert into Employee (employee_id, department_id, primary_flag) values ('4', '4', 'N');
+
+
+
+select Employee.employee_id, Employee.department_id from Employee
+where primary_flag = 'Y' or employee_id in (
+    select employee_id from Employee group by employee_id having count(department_id) = 1
+    );
+
+
+Create table If Not Exists Triangle (x int, y int, z int);
+Truncate table Triangle;
+insert into Triangle (x, y, z) values ('13', '15', '30');
+insert into Triangle (x, y, z) values ('10', '20', '15');
+
+select x, y, z,
+       if(x + y > z and y + z > x and z + x > y, 'Yes', 'No') as triangle
+from triangle;
+
+
+Create table If Not Exists Logs (id int, num int);
+Truncate table Logs;
+insert into Logs (id, num) values ('1', '1');
+insert into Logs (id, num) values ('2', '1');
+insert into Logs (id, num) values ('3', '1');
+insert into Logs (id, num) values ('4', '2');
+insert into Logs (id, num) values ('5', '1');
+insert into Logs (id, num) values ('6', '2');
+insert into Logs (id, num) values ('7', '2');
+
+
+select num from Logs group by num having count(id) > 3;
+
+with cte as (
+    select num,
+           lag(num) over (order by id) as previous_num,
+           lead(num) over (order by id) as next_num
+    from logs
+)
+select distinct num as ConsecutiveNums from cte
+where num = cte.previous_num and num = cte.next_num;
+
+
+Create table If Not Exists Products (product_id int, new_price int, change_date date);
+Truncate table Products;
+insert into Products (product_id, new_price, change_date) values ('1', '20', '2019-08-14');
+insert into Products (product_id, new_price, change_date) values ('2', '50', '2019-08-14');
+insert into Products (product_id, new_price, change_date) values ('1', '30', '2019-08-15');
+insert into Products (product_id, new_price, change_date) values ('1', '35', '2019-08-16');
+insert into Products (product_id, new_price, change_date) values ('2', '65', '2019-08-17');
+insert into Products (product_id, new_price, change_date) values ('3', '20', '2019-08-18');
+
+select * from Products;
+
+
+
+
+select
+    product_id,
+    10 as price
+from
+    Products
+group by product_id
+having min(change_date) > '2019-08-16'
+union all
+select Products.product_id,
+       Products.new_price as price
+from Products
+where (product_id, change_date) in (
+        select product_id, max(change_date)
+        from Products
+        where change_date <= '2019-08-16'
+        group by product_id
+        )
