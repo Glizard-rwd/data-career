@@ -242,4 +242,65 @@ where (product_id, change_date) in (
         from Products
         where change_date <= '2019-08-16'
         group by product_id
-        )
+        );
+
+
+Create table If Not Exists MyNumbers (num int);
+Truncate table MyNumbers;
+insert into MyNumbers (num) values ('8');
+insert into MyNumbers (num) values ('8');
+insert into MyNumbers (num) values ('3');
+insert into MyNumbers (num) values ('3');
+insert into MyNumbers (num) values ('1');
+insert into MyNumbers (num) values ('4');
+insert into MyNumbers (num) values ('5');
+insert into MyNumbers (num) values ('6');
+
+
+select * from MyNumbers;
+
+
+
+# Write your MySQL query statement below
+with cte as (
+    select num from MyNumbers group by num having count(num) = 1
+)
+select max(num) as num from cte;
+
+
+
+Create table If Not Exists Queue (person_id int, person_name varchar(30), weight int, turn int);
+Truncate table Queue;
+insert into Queue (person_id, person_name, weight, turn) values ('5', 'Alice', '250', '1');
+insert into Queue (person_id, person_name, weight, turn) values ('4', 'Bob', '175', '5');
+insert into Queue (person_id, person_name, weight, turn) values ('3', 'Alex', '350', '2');
+insert into Queue (person_id, person_name, weight, turn) values ('6', 'John Cena', '400', '3');
+insert into Queue (person_id, person_name, weight, turn) values ('1', 'Winston', '500', '6');
+insert into Queue (person_id, person_name, weight, turn) values ('2', 'Marie', '200', '4');
+
+with cte as (select *,
+                    sum(Queue.weight) over (order by Queue.turn) as cSum
+             from Queue)
+select person_name from cte where cte.cSum <= 1000 order by turn desc limit 1;
+
+
+
+Create table If Not Exists Accounts (account_id int, income int);
+Truncate table Accounts;
+insert into Accounts (account_id, income) values ('3', '108939');
+insert into Accounts (account_id, income) values ('2', '12747');
+insert into Accounts (account_id, income) values ('8', '87709');
+insert into Accounts (account_id, income) values ('6', '91796');
+
+select 'Low Salary' as category,
+       sum(income < 20000) as accounts_count
+from Accounts
+UNION ALL
+select 'Average Salary' as category,
+       sum(income >= 20000 and income <= 50000) as accounts_count
+from Accounts
+UNION ALL
+select 'High Salary' as category,
+       sum(income > 50000) as accounts_count
+from Accounts;
+
