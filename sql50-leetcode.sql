@@ -1,6 +1,6 @@
 use query;
 Create table If Not Exists Teacher (teacher_id int, subject_id int, dept_id int);
-Truncate table Teacher
+Truncate table Teacher;
 insert into Teacher (teacher_id, subject_id, dept_id) values ('1', '2', '3');
 insert into Teacher (teacher_id, subject_id, dept_id) values ('1', '2', '4');
 insert into Teacher (teacher_id, subject_id, dept_id) values ('1', '3', '3');
@@ -16,7 +16,7 @@ group by Teacher.teacher_id;
 
 # USER activity for the past 30 days
 Create table If Not Exists Activity (user_id int, session_id int, activity_date date, activity_type ENUM('open_session', 'end_session', 'scroll_down', 'send_message'));
-Truncate table Activity
+Truncate table Activity;
 insert into Activity (user_id, session_id, activity_date, activity_type) values ('1', '1', '2019-07-20', 'open_session');
 insert into Activity (user_id, session_id, activity_date, activity_type) values ('1', '1', '2019-07-20', 'scroll_down');
 insert into Activity (user_id, session_id, activity_date, activity_type) values ('1', '1', '2019-07-20', 'end_session');
@@ -150,8 +150,8 @@ having count(distinct product_key) = (select count(*) from Product); # too slow
 
 
 Create table If Not Exists Employees(employee_id int, name varchar(20), reports_to int, age int);
-Truncate table Employees;, age) values ('9', 'Hercy', NULL, '43')
-insert into Employees (employee_id, name, reports_to, age) values ('9', 'Hercy', NULL, '43')
+Truncate table Employees;, age) values ('9', 'Hercy', NULL, '43');
+insert into Employees (employee_id, name, reports_to, age) values ('9', 'Hercy', NULL, '43');
 insert into Employees (employee_id, name, reports_to, age) values ('6', 'Alice', '9', '41');
 insert into Employees (employee_id, name, reports_to, age) values ('4', 'Bob', '9', '36');
 insert into Employees (employee_id, name, reports_to, age) values ('2', 'Winston', NULL, '37');
