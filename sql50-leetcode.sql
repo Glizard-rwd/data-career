@@ -150,7 +150,8 @@ having count(distinct product_key) = (select count(*) from Product); # too slow
 
 
 Create table If Not Exists Employees(employee_id int, name varchar(20), reports_to int, age int);
-Truncate table Employees;, age) values ('9', 'Hercy', NULL, '43');
+Truncate table Employees;
+
 insert into Employees (employee_id, name, reports_to, age) values ('9', 'Hercy', NULL, '43');
 insert into Employees (employee_id, name, reports_to, age) values ('6', 'Alice', '9', '41');
 insert into Employees (employee_id, name, reports_to, age) values ('4', 'Bob', '9', '36');
@@ -303,4 +304,56 @@ UNION ALL
 select 'High Salary' as category,
        sum(income > 50000) as accounts_count
 from Accounts;
+
+
+Drop table if exists Employees;
+Create table If Not Exists Employees (employee_id int, name varchar(20), manager_id int, salary int);
+Truncate table Employees;
+insert into Employees (employee_id, name, manager_id, salary) values ('3', 'Mila', '9', '60301');
+insert into Employees (employee_id, name, manager_id, salary) values ('12', 'Antonella', NULL, '31000');
+insert into Employees (employee_id, name, manager_id, salary) values ('13', 'Emery', NULL, '67084');
+insert into Employees (employee_id, name, manager_id, salary) values ('1', 'Kalel', '11', '21241');
+insert into Employees (employee_id, name, manager_id, salary) values ('9', 'Mikaela', NULL, '50937');
+insert into Employees (employee_id, name, manager_id, salary) values ('11', 'Joziah', '6', '28485');
+
+select * from employees;
+
+use query;
+select * from Employees where salary < 30000;
+
+select employee_id from Employees where salary < 30000
+    and manager_id is not null
+    and manager_id not in (select employee_id from Employees);
+
+
+Create table If Not Exists Seat (id int, student varchar(255));
+Truncate table Seat;
+insert into Seat (id, student) values ('1', 'Abbot');
+insert into Seat (id, student) values ('2', 'Doris');
+insert into Seat (id, student) values ('3', 'Emerson');
+insert into Seat (id, student) values ('4', 'Green');
+insert into Seat (id, student) values ('5', 'Jeames');
+
+select * from Seat;
+
+with cte as (
+    select max(id) as max_id from Seat
+)
+select
+    s.id,
+    case
+        when s.id = cte.max_id and (cte.max_id % 2 = 1) then s.student
+        when (s.id % 2 = 0) then lag(s.student, 1) over (order by s.id)
+        when (s.id % 2 = 1) then lead(s.student, 1) over (order by s.id)
+        end as student
+from Seat s
+         cross join cte;
+
+
+SELECT IF (id < (SELECT MAX(id) FROM Seat), -- keep the last record
+           IF(id % 2 = 0, id - 1, id + 1),
+           IF(id % 2 = 0, id - 1, id)
+       ) AS id, student
+FROM Seat
+ORDER BY id;
 
