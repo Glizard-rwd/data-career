@@ -49,7 +49,7 @@ Truncate table Sales;
 insert into Sales (sale_id, product_id, year, quantity, price) values ('1', '100', '2008', '10', '5000');
 insert into Sales (sale_id, product_id, year, quantity, price) values ('2', '100', '2009', '12', '5000');
 insert into Sales (sale_id, product_id, year, quantity, price) values ('7', '200', '2011', '15', '9000');
-    Truncate table Product;
+Truncate table Product;
 insert into Product (product_id, product_name) values ('100', 'Nokia');
 insert into Product (product_id, product_name) values ('200', 'Apple');
 insert into Product (product_id, product_name) values ('300', 'Samsung');
@@ -63,11 +63,11 @@ select * from product;
  then find the record matching the min year
  */
 
- with cte as (
-     select product_id, min(s2.year) as min_year from sales s2 group by product_id
- )
- select s.product_id, s.year as first_year, s.quantity, s.price
- from sales s join cte on s.product_id = cte.product_id and s.year = cte.min_year;
+with cte as (
+    select product_id, min(s2.year) as min_year from sales s2 group by product_id
+)
+select s.product_id, s.year as first_year, s.quantity, s.price
+from sales s join cte on s.product_id = cte.product_id and s.year = cte.min_year;
 
 
 
@@ -129,7 +129,7 @@ insert into Customer (customer_id, product_key) values ('2', '6');
 insert into Customer (customer_id, product_key) values ('3', '5');
 insert into Customer (customer_id, product_key) values ('3', '6');
 insert into Customer (customer_id, product_key) values ('1', '6');
-    Truncate table Product;
+Truncate table Product;
 drop table Product;
 insert into Product (product_key) values ('5');
 insert into Product (product_key) values ('6');
@@ -157,7 +157,7 @@ insert into Employees (employee_id, name, reports_to, age) values ('6', 'Alice',
 insert into Employees (employee_id, name, reports_to, age) values ('4', 'Bob', '9', '36');
 insert into Employees (employee_id, name, reports_to, age) values ('2', 'Winston', NULL, '37');
 select e2.employee_id, e2.name, count(e1.employee_id) as report_counts, round(avg(e1.age)) as average_age from employees e1
-join employees e2 on e1.reports_to = e2.employee_id
+                                                                                                                   join employees e2 on e1.reports_to = e2.employee_id
 group by e2.employee_id, e2.name
 order by e2.employee_id;
 
@@ -177,7 +177,7 @@ insert into Employee (employee_id, department_id, primary_flag) values ('4', '4'
 select Employee.employee_id, Employee.department_id from Employee
 where primary_flag = 'Y' or employee_id in (
     select employee_id from Employee group by employee_id having count(department_id) = 1
-    );
+);
 
 
 Create table If Not Exists Triangle (x int, y int, z int);
@@ -239,11 +239,11 @@ select Products.product_id,
        Products.new_price as price
 from Products
 where (product_id, change_date) in (
-        select product_id, max(change_date)
-        from Products
-        where change_date <= '2019-08-16'
-        group by product_id
-        );
+    select product_id, max(change_date)
+    from Products
+    where change_date <= '2019-08-16'
+    group by product_id
+);
 
 
 Create table If Not Exists MyNumbers (num int);
@@ -322,8 +322,8 @@ use query;
 select * from Employees where salary < 30000;
 
 select employee_id from Employees where salary < 30000
-    and manager_id is not null
-    and manager_id not in (select employee_id from Employees);
+                                    and manager_id is not null
+                                    and manager_id not in (select employee_id from Employees);
 
 
 Create table If Not Exists Seat (id int, student varchar(255));
@@ -357,3 +357,107 @@ SELECT IF (id < (SELECT MAX(id) FROM Seat), -- keep the last record
 FROM Seat
 ORDER BY id;
 
+
+select if (id < (select max(id) from seat),
+           if (id % 2 = 0, id - 1, id + 1),
+           if (id % 2 = 0, id - 1, id)
+       ) as id,
+       student
+from Seat
+order by id;
+
+
+
+
+Create table If Not Exists MyNumbers (num int);
+Truncate table MyNumbers;
+insert into MyNumbers (num) values ('8');
+insert into MyNumbers (num) values ('8');
+insert into MyNumbers (num) values ('3');
+insert into MyNumbers (num) values ('3');
+insert into MyNumbers (num) values ('1');
+insert into MyNumbers (num) values ('4');
+insert into MyNumbers (num) values ('5');
+insert into MyNumbers (num) values ('6');
+
+
+select ifnull(
+               (select num from MyNumbers group by num having count(num) = 1 order by num desc limit 1),
+               null) as num;
+
+select max(num) as num from (
+                                select num from MyNumbers group by num having count(num) = 1 order by num desc limit 1
+                            ) as nums;
+
+with nums as (
+    select num from MyNumbers group by num having count(num) = 1 order by num desc limit 1
+) select max(num) as num from nums;
+
+
+Create table If Not Exists Movies (movie_id int, title varchar(30));
+Create table If Not Exists Users (user_id int, name varchar(30));
+Create table If Not Exists MovieRating (movie_id int, user_id int, rating int, created_at date);
+Truncate table Movies
+insert into Movies (movie_id, title) values ('1', 'Avengers');;
+insert into Movies (movie_id, title) values ('2', 'Frozen 2');
+insert into Movies (movie_id, title) values ('3', 'Joker');
+Truncate table Users
+insert into Users (user_id, name) values ('1', 'Daniel');
+insert into Users (user_id, name) values ('2', 'Monica');
+insert into Users (user_id, name) values ('3', 'Maria');
+insert into Users (user_id, name) values ('4', 'James');
+Truncate table MovieRating
+insert into MovieRating (movie_id, user_id, rating, created_at) values ('1', '1', '3', '2020-01-12');
+insert into MovieRating (movie_id, user_id, rating, created_at) values ('1', '2', '4', '2020-02-11');
+insert into MovieRating (movie_id, user_id, rating, created_at) values ('1', '3', '2', '2020-02-12');
+insert into MovieRating (movie_id, user_id, rating, created_at) values ('1', '4', '1', '2020-01-01');
+insert into MovieRating (movie_id, user_id, rating, created_at) values ('2', '1', '5', '2020-02-17');
+insert into MovieRating (movie_id, user_id, rating, created_at) values ('2', '2', '2', '2020-02-01');
+insert into MovieRating (movie_id, user_id, rating, created_at) values ('2', '3', '2', '2020-03-01');
+insert into MovieRating (movie_id, user_id, rating, created_at) values ('3', '1', '3', '2020-02-22');
+insert into MovieRating (movie_id, user_id, rating, created_at) values ('3', '2', '4', '2020-02-25');
+
+select user_id, count(*) from MovieRating group by user_id;
+
+explain analyze with group_cte as (
+    select user_id, count(*) as numOfCounts from MovieRating group by user_id
+) select user_id from group_cte where numOfCounts = (select max(numOfCounts) from group_cte);
+
+
+WITH cte AS (
+    -- Find the user who rated the most movies
+    SELECT user_id, name, COUNT(movie_id) AS countMovie
+    FROM MovieRating
+             JOIN Users USING (user_id)
+    GROUP BY user_id, name
+    ORDER BY countMovie DESC, name
+    LIMIT 1
+), movie_cte AS (
+    -- Find the highest-rated movie in February 2020
+    SELECT movie_id, title, AVG(rating) AS avgRating
+    FROM MovieRating
+             JOIN Movies USING (movie_id)
+    WHERE EXTRACT(YEAR_MONTH FROM created_at) = 202002
+    GROUP BY movie_id, title
+    ORDER BY avgRating DESC, title
+    LIMIT 1
+)
+-- Combine results
+SELECT name AS results FROM cte
+UNION ALL
+SELECT title AS results FROM movie_cte;
+
+# Write your MySQL query statement below
+(SELECT name AS results
+FROM MovieRating JOIN Users USING(user_id)
+GROUP BY name
+ORDER BY COUNT(*) DESC, name
+            LIMIT 1)
+
+UNION ALL
+(SELECT title AS results
+ FROM MovieRating JOIN Movies USING(movie_id)
+ WHERE EXTRACT(YEAR_MONTH FROM created_at) = 202002
+ GROUP BY title
+ ORDER BY AVG(rating) DESC, title
+ LIMIT 1);
